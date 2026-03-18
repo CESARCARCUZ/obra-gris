@@ -120,9 +120,14 @@
             </form>
         </div>
 
-        <div id="success-message" class="hidden-section w-full text-center md:text-left">
+       <div id="success-message" class="hidden-section w-full text-center md:text-left">
             <h2 class="text-5xl md:text-8xl font-bold tracking-tighter text-white italic mb-6">REGISTRO_OK.</h2>
-            <p class="text-sm tracking-[0.5em] opacity-50">ESPERA INSTRUCCIONES EN TU BANDEJA DE ENTRADA.</p>
+            <p class="text-sm tracking-[0.5em] opacity-50 mb-12">ESPERA INSTRUCCIONES EN TU BANDEJA DE ENTRADA.</p>
+            
+            <button onclick="resetSystem()" class="text-[10px] font-bold tracking-[0.4em] underline decoration-2 underline-offset-8 hover:text-white transition-colors opacity-40 hover:opacity-100">
+                [ REGISTRAR_NUEVO_ACCESO ]
+            </button>
+
             <div class="mt-12 h-[2px] bg-white w-full origin-left scale-x-0 transition-transform duration-1000" id="loading-bar"></div>
         </div>
 
@@ -202,6 +207,26 @@
             alert("SISTEMA_OFFLINE. REINTENTE.");
         }
     };
+
+// FUNCIÓN PARA VOLVER AL INICIO
+    function resetSystem() {
+        // 1. Limpiar el input
+        emailInput.value = '';
+        emailInput.classList.remove('input-error');
+
+        // 2. Ocultar éxito y mostrar captura
+        successMessage.classList.add('hidden-section');
+        captureContainer.classList.remove('hidden-section');
+        
+        // 3. Resetear barra de carga y opacidad
+        loadingBar.style.transform = 'scaleX(0)';
+        setTimeout(() => {
+            captureContainer.style.opacity = '1';
+            captureContainer.style.pointerEvents = 'auto';
+            emailInput.focus();
+        }, 50);
+    }
+
 </script>
 </body>
 </html>
