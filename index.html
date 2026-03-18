@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>OBRA_GRIS // ACCESO_SISTEMA</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+        
+        body { 
+            font-family: 'Space Mono', monospace; 
+            background-color: #1a1a1a; 
+            color: #d1d1d1; 
+            overflow: hidden; 
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grain { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            opacity: 0.03; pointer-events: none; z-index: 50; 
+            background-image: url('https://media.giphy.com/media/oEI9uWUic9VKM/giphy.gif'); 
+        }
+
+        /* Input base */
+        input { 
+            border: none; 
+            border-bottom: 2px solid #d1d1d1; 
+            background: transparent; 
+            border-radius: 0; 
+            color: #fff;
+            transition: all 0.2s ease;
+        }
+        input:focus { 
+            outline: none; 
+            border-bottom: 8px solid #fff; 
+        }
+
+        /* Estado de Error para el Input (Rojo Industrial) */
+        input.input-error {
+            border-bottom: 8px solid #dc2626 !important; /* red-600 */
+            color: #dc2626;
+        }
+
+        /* Cuadro de diálogo de error */
+        .error-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #dc2626; /* red-600 */
+            color: #fff;
+            padding: 2rem;
+            border: 4px solid #000;
+            z-index: 100;
+            max-width: 90%;
+            width: 400px;
+            box-shadow: 10px 10px 0 #000;
+        }
+        .error-dialog.show {
+            display: block;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .cursor-blink { animation: blink 1s infinite; }
+
+        .hidden-section { display: none; }
+    </style>
+</head>
+<body class="p-6 md:p-12 uppercase select-none">
+    <div class="grain"></div>
+
+    <div id="error-dialog" class="error-dialog text-center font-bold">
+        <p class="text-xs tracking-widest opacity-70 mb-2">// ERROR_SYSTEM_ALERT_01</p>
+        <p class="text-xl md:text-2xl tracking-tighter mb-6">FORMATO_DE_CORREO_INVÁLIDO</p>
+        <p class="text-[10px] tracking-widest leading-relaxed mb-8">EL SISTEMA REQUIERE UNA DIRECCIÓN VÁLIDA (USUARIO@DOMINIO.COM) PARA SINCRONIZAR LOS DATOS DE ACCESO.</p>
+        <button onclick="closeError()" class="text-lg border-2 border-white px-8 py-3 hover:bg-white hover:text-black transition-all">
+            [REINTENTAR]
+        </button>
+    </div>
+
+    <header class="flex justify-between font-bold text-[10px] tracking-[0.3em] opacity-50 relative z-10">
+        <div>OBRA_GRIS // GUA_UNIT_01</div>
+        <div class="text-right">SYS_STATUS: ONLINE<br>ST_REV_2026</div>
+    </header>
+
+    <main class="flex-grow flex flex-col justify-center items-start max-w-6xl mx-auto w-full relative z-10">
+        
+        <div id="capture-container">
+            <div class="mb-6 flex items-center gap-3">
+                <div class="w-2 h-2 bg-white cursor-blink"></div>
+                <span class="text-[10px] tracking-[0.5em] font-bold">SOLICITUD_DE_ACCESO_EN_CURSO</span>
+            </div>
+
+            <h1 class="text-[10vw] md:text-[7vw] font-bold leading-[0.85] tracking-tighter mb-12 italic text-white">
+                REGISTRA<br>TU_CORREO
+            </h1>
+
+            <form id="newsletter-form" class="w-full">
+                <div class="flex flex-col md:flex-row items-end gap-8">
+                    <input type="text" id="user-email" placeholder="USER@DOMAIN.COM" 
+                        class="w-full text-3xl md:text-6xl font-bold py-4 placeholder:opacity-20 uppercase">
+                    
+                    <button type="submit" class="w-full md:w-auto text-2xl font-bold border-2 border-white px-10 py-5 hover:bg-white hover:text-black transition-all duration-300">
+                        [ENVIAR]
+                    </button>
+                </div>
+                
+                <div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-8 opacity-40">
+                    <p class="text-[9px] tracking-[0.2em] leading-relaxed">
+                        AL INGRESAR TU CORREO, TE SUSCRIBES A LA RED DE NOTIFICACIONES DE OBRA_GRIS. RECIBIRÁS COORDENADAS PARA EVENTOS INDEPENDIENTES Y ACTUALIZACIONES DEL SISTEMA.
+                    </p>
+                    <p class="text-[9px] tracking-[0.2em] leading-relaxed md:text-right">
+                        PRIVACIDAD TOTAL. NO SPAM. SOLO DATOS RELEVANTES. SINCRONIZACIÓN AUTOMÁTICA CON EL ARCHIVO CENTRAL.
+                    </p>
+                </div>
+            </form>
+        </div>
+
+        <div id="success-message" class="hidden-section w-full text-center md:text-left">
+            <h2 class="text-5xl md:text-8xl font-bold tracking-tighter text-white italic mb-6">REGISTRO_OK.</h2>
+            <p class="text-sm tracking-[0.5em] opacity-50">ESPERA INSTRUCCIONES EN TU BANDEJA DE ENTRADA.</p>
+            <div class="mt-12 h-[2px] bg-white w-full origin-left scale-x-0 transition-transform duration-1000" id="loading-bar"></div>
+        </div>
+
+    </main>
+
+    <footer class="mt-auto flex justify-between items-end text-[9px] font-bold tracking-[0.3em] opacity-40 relative z-10">
+        <div>© OBRA_GRIS_STUDIO // 2026</div>
+        <div class="text-right">
+            COORD: 14.6349° N, 90.5069° W<br>
+            GUATEMALA_CITY
+        </div>
+    </footer>
+
+    <script>
+        const form = document.getElementById('newsletter-form');
+        const emailInput = document.getElementById('user-email');
+        const captureContainer = document.getElementById('capture-container');
+        const successMessage = document.getElementById('success-message');
+        const loadingBar = document.getElementById('loading-bar');
+        const errorDialog = document.getElementById('error-dialog');
+
+        // FUNCIÓN DE VALIDACIÓN (REGEX)
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(String(email).toLowerCase());
+        }
+
+        // CERRAR CUADRO DE ERROR
+        function closeError() {
+            errorDialog.classList.remove('show');
+            emailInput.focus(); // Devuelve el foco al input
+        }
+
+        // ENVÍO DEL FORMULARIO
+        form.onsubmit = (e) => {
+            e.preventDefault();
+            const email = emailInput.value;
+            
+            // 1. Resetear estados previos
+            emailInput.classList.remove('input-error');
+
+            // 2. Validar
+            if (!validateEmail(email)) {
+                console.log("ERROR_SYSTEM: Formato de email inválido.");
+                
+                // Activar alertas visuales
+                emailInput.classList.add('input-error');
+                errorDialog.classList.add('show');
+                
+                return false; // Detener el envío
+            }
+
+            // 3. Si todo está bien, proceder con el éxito
+            console.log("DATA_SENT_TO_DB:", email);
+
+            captureContainer.style.opacity = '0';
+            captureContainer.style.pointerEvents = 'none';
+
+            setTimeout(() => {
+                captureContainer.classList.add('hidden-section');
+                successMessage.classList.remove('hidden-section');
+                setTimeout(() => {
+                    loadingBar.style.transform = 'scaleX(1)';
+                }, 100);
+            }, 500);
+        };
+    </script>
+</body>
+</html>
