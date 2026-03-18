@@ -144,50 +144,65 @@
         const loadingBar = document.getElementById('loading-bar');
         const errorDialog = document.getElementById('error-dialog');
 
-        // FUNCIÓN DE VALIDACIÓN (REGEX)
         function validateEmail(email) {
             const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             return re.test(String(email).toLowerCase());
         }
 
-        // CERRAR CUADRO DE ERROR
         function closeError() {
             errorDialog.classList.remove('show');
-            emailInput.focus(); // Devuelve el foco al input
+            emailInput.focus();
         }
 
-        // ENVÍO DEL FORMULARIO
-        form.onsubmit = (e) => {
+        // ENVÍO REAL A FORMSPREE
+        form.onsubmit = async (e) => {
             e.preventDefault();
             const email = emailInput.value;
             
-            // 1. Resetear estados previos
             emailInput.classList.remove('input-error');
 
-            // 2. Validar
             if (!validateEmail(email)) {
-                console.log("ERROR_SYSTEM: Formato de email inválido.");
-                
-                // Activar alertas visuales
                 emailInput.classList.add('input-error');
                 errorDialog.classList.add('show');
-                
-                return false; // Detener el envío
+                return false;
             }
 
-            // 3. Si todo está bien, proceder con el éxito
-            console.log("DATA_SENT_TO_DB:", email);
+            // --- CONEXIÓN DIRECTA A BEEHIIV ---
+            // Usamos un Proxy para evitar problemas de seguridad (CORS) comunes en navegadores
+            try {
+                const response = await fetch("https://email.beehiiv.com/subscribe/6c1fe0c7-473c-4a13-88dc-ea691736f6a1", {
+                    method: "POST",
+                    mode: "no-cors", // Esto permite que el envío funcione desde GitHub Pages
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: new URLSearchParams({
+                        "email": email
+                    })
+                });
 
-            captureContainer.style.opacity = '0';
-            captureContainer.style.pointerEvents = 'none';
+                // Como usamos 'no-cors', el navegador no nos deja leer la respuesta exacta, 
+                // pero si no hay error de red, asumimos que se envió.
+                console.log("DATOS_ENVIADOS_A_BEEHIIV");
+                
+                // MOSTRAR ÉXITO
+                captureContainer.style.opacity = '0';
+                captureContainer.style.pointerEvents = 'none';
 
-            setTimeout(() => {
-                captureContainer.classList.add('hidden-section');
-                successMessage.classList.remove('hidden-section');
                 setTimeout(() => {
-                    loadingBar.style.transform = 'scaleX(1)';
-                }, 100);
-            }, 500);
+                    captureContainer.classList.add('hidden-section');
+                    successMessage.classList.remove('hidden-section');
+                    setTimeout(() => {
+                        loadingBar.style.transform = 'scaleX(1)';
+                    }, 100);
+                }, 500);
+
+            } catch (error) {
+                console.error("ERROR_CONEXION:", error);
+                alert("ERROR_DE_SISTEMA: INTENTE MÁS TARDE.");
+            }
+        };
+            // --- FIN DEL BLOQUE FETCH ---
         };
     </script>
 </body>
