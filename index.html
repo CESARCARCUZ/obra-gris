@@ -136,7 +136,7 @@
         </div>
     </footer>
 
-    <script>
+<script>
     const form = document.getElementById('newsletter-form');
     const emailInput = document.getElementById('user-email');
     const captureContainer = document.getElementById('capture-container');
@@ -155,49 +155,53 @@
     }
 
     form.onsubmit = async (e) => {
-            e.preventDefault();
-            const email = emailInput.value.trim();
-            
-            emailInput.classList.remove('input-error');
+        e.preventDefault();
+        const email = emailInput.value.trim();
+        
+        emailInput.classList.remove('input-error');
 
-            if (!validateEmail(email)) {
-                emailInput.classList.add('input-error');
-                errorDialog.classList.add('show');
-                return false;
-            }
+        // 1. VALIDACIÓN DE FORMATO
+        if (!validateEmail(email)) {
+            emailInput.classList.add('input-error');
+            errorDialog.classList.add('show');
+            return false;
+        }
 
-            // --- MÉTODO DE ENVÍO COMPATIBLE ---
-            try {
-                // Usamos un formulario oculto en memoria para engañar al sistema de seguridad
-                const formData = new FormData();
-                formData.append('email', email);
+        // 2. CONFIGURACIÓN DE DATOS (MAILCHIMP)
+        // Usamos FormData para que Mailchimp reciba los datos como si vinieran de su propio formulario
+        const mailchimpAction = "https://github.us17.list-manage.com/subscribe/post?u=b2229ad1ca6e71755839679b9&id=ff19a8f935&f_id=00fe67e0f0";
+        
+        const formData = new FormData();
+        formData.append('EMAIL', email);
+        // Este es el campo "antispam" que venía en tu código
+        formData.append('b_b2229ad1ca6e71755839679b9_ff19a8f935', ''); 
 
-                // Esta es la URL de procesamiento oficial de Beehiiv para tu formulario
-                await fetch("https://email.beehiiv.com/subscribe/6c1fe0c7-473c-4a13-88dc-ea691736f6a1", {
-                    method: "POST",
-                    body: formData,
-                    mode: 'no-cors' 
-                });
+        try {
+            // Enviamos los datos con 'no-cors' para saltar restricciones de dominio
+            await fetch(mailchimpAction, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors'
+            });
 
-                // Si llegamos aquí, el navegador disparó la petición
-                console.log("ACCESO_REGISTRADO: " + email);
-                
-                captureContainer.style.opacity = '0';
-                captureContainer.style.pointerEvents = 'none';
+            // 3. RESPUESTA VISUAL DE ÉXITO
+            console.log("ACCESO_REGISTRADO_MAILCHIMP: " + email);
+            captureContainer.style.opacity = '0';
+            captureContainer.style.pointerEvents = 'none';
 
+            setTimeout(() => {
+                captureContainer.classList.add('hidden-section');
+                successMessage.classList.remove('hidden-section');
                 setTimeout(() => {
-                    captureContainer.classList.add('hidden-section');
-                    successMessage.classList.remove('hidden-section');
-                    setTimeout(() => {
-                        loadingBar.style.transform = 'scaleX(1)';
-                    }, 100);
-                }, 500);
+                    loadingBar.style.transform = 'scaleX(1)';
+                }, 100);
+            }, 500);
 
-            } catch (error) {
-                console.error("SYS_ERROR:", error);
-                alert("ERROR_DE_SINCRONIZACION. REINTENTE.");
-            }
-        };
+        } catch (error) {
+            console.error("SYS_CRITICAL_ERROR:", error);
+            alert("SISTEMA_OFFLINE. REINTENTE.");
+        }
+    };
 </script>
 </body>
 </html>
